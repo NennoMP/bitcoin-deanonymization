@@ -103,10 +103,11 @@ def label_clusters(df: pd.DataFrame, clusters, diff=None) -> pd.DataFrame:
     return df
 
 
-def plot_scatter(xdata, ydata, filename: str, xlabel: str, ylabel: str, color='#2986cc'):
+def plot_scatter(xdata, ydata, filename: str, title: str, xlabel: str, ylabel: str, color='#2986cc'):
     """Plot and save a scatter (distribution) chart."""
 
     plt.scatter(xdata, ydata, alpha=0.5, color=color)
+    plt.title(title)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.gca().spines['top'].set_visible(False)

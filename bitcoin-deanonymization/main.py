@@ -58,8 +58,8 @@ def main() -> None:
     # Time-step for trend analysis (n. blocks)
     # 1 block -> 10 minutes
     blocks_one_month = ((365 * 24 * 60) / 12) / 10 # 1 month
-    #blocks_two_month = blocks_one_month * 2 # 2 month
-    #blocks_four_month = blocks_one_month * 4 # 4 month
+    blocks_two_month = blocks_one_month * 2 # 2 month
+    blocks_four_month = blocks_one_month * 4 # 4 month
 
     ha = HeuristicAnalyzer(tx_df, in_df, out_df, K=int(blocks_one_month))
     #ha = HeuristicAnalyzer(tx_df, in_df, out_df, K=int(blocks_two_month))

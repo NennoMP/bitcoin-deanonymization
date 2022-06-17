@@ -2,6 +2,7 @@ import logging
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.transforms as transforms
 
 import utils
 
@@ -103,8 +104,9 @@ class HeuristicAnalyzer:
         utils.plot_scatter(
             xdata=clusters_size_distribution.keys(),
             ydata=clusters_size_distribution.values(),
-            filename=f'{PLOTS_PATH}{heuristic}_clusters_distribution.jpg',
-            xlabel='Size (# of addresses)',
+            filename=f'{PLOTS_PATH}{heuristic}_clusters_distribution',
+            title=heuristic,
+            xlabel='Cluster size (# of addresses)',
             ylabel='Frequency',
             color=color
         )
@@ -131,13 +133,36 @@ class HeuristicAnalyzer:
         utils.plot_trend(
             xdata=temporal_reduction.keys(),
             ydata=temporal_reduction.values(),
-            filename=f'{PLOTS_PATH}{heuristic}_trend_{self.K}.jpg',
+            filename=f'{PLOTS_PATH}{heuristic}_trend_{self.K}',
             title=title,
             xlabel='Blocks',
             ylabel='Reduction',
             marker='.',
             color=color
         )
+
+    def plot_improvement_trend(self, improvement: dict, title: str, xlabel: str, ylabel: str, filename: str, color='black'):
+        """Plots the temporal improvement of addresses reduction, comparing MIH and MIH+OCH.
+
+        :param <improvement>: addresses reduction ratio improvement trend after applying MIH+OCH 
+        """
+
+        # Plot improvement
+        plt.plot(improvement.keys(), improvement.values(), marker='.', color=color, label='Improvement')
+
+        # Plot average improvement line
+        y_avg = [np.mean(list(improvement.values()))] * len(improvement.keys())
+        plt.plot(improvement.keys(), y_avg, color='red', lw=2, ls='--', label="Average")
+
+        plt.legend()
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.gca().spines['top'].set_visible(False)
+        plt.gca().spines['right'].set_visible(False)
+        plt.grid(True, linestyle='--')
+        plt.savefig(filename)
+        plt.clf()
 
     def init_cumulative_dataframes(self):
         """Initializes/Resets cumulative dataframes before applying an heuristic, since they're shared attributes.
@@ -412,7 +437,7 @@ class HeuristicAnalyzer:
             color='#f2a900'
         )
 
-        # Plot trends as subplots
+        # Plot trends together
         plt.plot(self.temporal_reduction_mih.keys(), self.temporal_reduction_mih.values(), marker='.', label='MIH')
         plt.plot(temporal_reduction.keys(), temporal_reduction.values(), marker='.', label='MIH + OCH', color='#f2a900')
 
@@ -426,3 +451,16 @@ class HeuristicAnalyzer:
 
         plt.savefig(f'bitcoin-deanonymization/data/plots/all_trends_{self.K}')
         plt.clf()
+
+        # Plot improvement trend
+        improvement = {k: temporal_reduction[k] - self.temporal_reduction_mih[k] for k in self.temporal_reduction_mih.keys()}
+
+        self.plot_improvement_trend(
+            improvement=improvement,
+            title=f'timestep = {self.K:_} (blocks)',
+            xlabel='Blocks',
+            ylabel='Improvement',
+            filename=f'{PLOTS_PATH}improvement_{self.K}',
+            color='black'
+        )
+
